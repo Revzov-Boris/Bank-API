@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: bankcards
+
+  # ===================================================================
+  # НАСТРОЙКИ БАЗЫ ДАННЫХ
+  # ===================================================================
+  datasource:
+    url: jdbc:postgresql://localhost:5433/Bank
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+    # Настройки пула соединений Hikari
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    # Стратегии именования
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+
+
+    # Показывать SQL запросы
+    show-sql: true
+
+    # Форматировать SQL
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+# ===================================================================
+# ОСНОВНЫЕ НАСТРОЙКИ ПРИЛОЖЕНИЯ
+# ===================================================================
+server:
+  port: 8080
