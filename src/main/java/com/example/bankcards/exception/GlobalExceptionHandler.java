@@ -2,13 +2,11 @@ package com.example.bankcards.exception;
 
 import com.example.bankcards.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,6 +61,20 @@ public class GlobalExceptionHandler {
                 .time(LocalDateTime.now())
                 .status(400)
                 .error("Not found resource")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
+
+
+    @ExceptionHandler(CardStatusException.class)
+    public ResponseEntity<ErrorResponse> badStatusForOperation(CardStatusException ex,
+                                                               HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .time(LocalDateTime.now())
+                .status(400)
+                .error("Cannot perform action")
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();

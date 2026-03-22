@@ -1,5 +1,6 @@
 package com.example.bankcards.service;
 
+import com.example.bankcards.controller.CardController;
 import com.example.bankcards.dto.CardPutRequest;
 import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
@@ -7,19 +8,23 @@ import com.example.bankcards.entity.CardEntity;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.UserEntity;
 import com.example.bankcards.exception.CardNotFoundException;
+import com.example.bankcards.exception.CardStatusException;
 import com.example.bankcards.exception.NonUniqueCardNumberException;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CardNumberEncryption;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class CardServiceImpl implements CardService {
@@ -142,5 +147,55 @@ public class CardServiceImpl implements CardService {
                 .expiryDate(e.getExpiryDate())
                 .lastFourDigits(e.getLastFourDigits())
                 .build();
+    }
+
+
+    @Override
+    @Transactional
+    public ResponseEntity<EntityModel<CardResponse>> blockCardById(int id) {
+        CardEntity cardEntity = cardRepository.findById(id).orElseThrow(
+                () -> new CardNotFoundException(id)
+        );
+        if (cardEntity.getStatus().equals(CardStatus.BLOCK)) {
+            CardResponse cardResponse = toResponse(cardEntity);
+            EntityModel<CardResponse> entityModel = EntityModel.of(cardResponse);
+            entityModel.add(linkTo(methodOn(CardController.class).getCardById(cardResponse.getId())).withSelfRel());
+            // карта и так была заблокирована, возвращаем статус 204
+            return new ResponseEntity(entityModel, HttpStatus.NO_CONTENT);
+        } else if (cardEntity.getStatus().equals(CardStatus.EXPIRED)) {
+            throw new CardStatusException("заблокировать", id, cardEntity.getStatus());
+        }
+        // если не заблокирована - блокируем
+        cardEntity.setStatus(CardStatus.BLOCK);
+        cardEntity = cardRepository.save(cardEntity);
+        CardResponse cardResponse = toResponse(cardEntity);
+        EntityModel<CardResponse> entityModel = EntityModel.of(cardResponse);
+        entityModel.add(linkTo(methodOn(CardController.class).getCardById(cardResponse.getId())).withSelfRel());
+        return new ResponseEntity(entityModel, HttpStatus.OK);
+    }
+
+
+    @Override
+    @Transactional
+    public ResponseEntity<EntityModel<CardResponse>> unblockCardById(int id) {
+        CardEntity cardEntity = cardRepository.findById(id).orElseThrow(
+                () -> new CardNotFoundException(id)
+        );
+        if (cardEntity.getStatus().equals(CardStatus.ACTIVE)) {
+            CardResponse cardResponse = toResponse(cardEntity);
+            EntityModel<CardResponse> entityModel = EntityModel.of(cardResponse);
+            entityModel.add(linkTo(methodOn(CardController.class).getCardById(cardResponse.getId())).withSelfRel());
+            // карта и так была актива, возвращаем статус 204
+            return new ResponseEntity(entityModel, HttpStatus.NO_CONTENT);
+        } else if (cardEntity.getStatus().equals(CardStatus.EXPIRED)) {
+            throw new CardStatusException("разблокировать", id, cardEntity.getStatus());
+        }
+        // если заблокирована - активируем
+        cardEntity.setStatus(CardStatus.ACTIVE);
+        cardEntity = cardRepository.save(cardEntity);
+        CardResponse cardResponse = toResponse(cardEntity);
+        EntityModel<CardResponse> entityModel = EntityModel.of(cardResponse);
+        entityModel.add(linkTo(methodOn(CardController.class).getCardById(cardResponse.getId())).withSelfRel());
+        return new ResponseEntity(entityModel, HttpStatus.OK);
     }
 }

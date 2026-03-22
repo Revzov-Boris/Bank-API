@@ -7,9 +7,9 @@ import com.example.bankcards.entity.CardStatus;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import java.math.BigDecimal;
-import java.util.List;
 
 public interface CardService {
     Page<CardResponse> getAllCards(Pageable pageable);
@@ -20,4 +20,6 @@ public interface CardService {
     CardResponse createCard(CardRequest card);
     CardResponse updateCard(@Valid CardPutRequest card, int id);
     void deleteCard(int id);
+    ResponseEntity<EntityModel<CardResponse>> blockCardById(int id);
+    ResponseEntity<EntityModel<CardResponse>> unblockCardById(int id);
 }

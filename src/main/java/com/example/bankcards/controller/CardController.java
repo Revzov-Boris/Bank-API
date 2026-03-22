@@ -3,7 +3,6 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.CardPutRequest;
 import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
-import com.example.bankcards.dto.CardPatchRequest;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.service.CardService;
 import jakarta.validation.Valid;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.hateoas.PagedModel;
 import java.math.BigDecimal;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -122,8 +120,20 @@ public class CardController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CardResponse> updateCard(@PathVariable Integer id) {
+    public ResponseEntity<Void> updateCard(@PathVariable Integer id) {
         cardService.deleteCard(id);
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+
+    @PostMapping("/{id}/block")
+    public ResponseEntity<EntityModel<CardResponse>> blockCard(@PathVariable int id) {
+        return cardService.blockCardById(id);
+    }
+
+
+    @PostMapping("/{id}/unblock")
+    public ResponseEntity<EntityModel<CardResponse>> unblockCard(@PathVariable int id) {
+        return cardService.unblockCardById(id);
     }
 }
