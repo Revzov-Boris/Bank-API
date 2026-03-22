@@ -2,6 +2,9 @@ package com.example.bankcards.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -21,6 +24,6 @@ public class TransferEntity {
     @ManyToOne
     @JoinColumn(name = "card_to_id", nullable = false)
     private CardEntity toCard;
-    @Column(precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal amount;
 }

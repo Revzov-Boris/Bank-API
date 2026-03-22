@@ -25,7 +25,7 @@ spring:
 
     # Стратегии именования
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
 
@@ -42,6 +42,15 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
+
+card:
+  encryption:
+    # Секретный ключ (в реальном проекте - через переменные окружения!)
+    secret: 3lwefsa0
+    # Алгоритм шифрования
+    algorithm: AES
+    # Режим шифрования (для простоты используем ECB, в продакшене лучше GCM)
+    transformation: AES/ECB/PKCS5Padding
 
 # ===================================================================
 # ОСНОВНЫЕ НАСТРОЙКИ ПРИЛОЖЕНИЯ
