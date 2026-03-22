@@ -1,7 +1,9 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.CardPutRequest;
 import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
+import com.example.bankcards.dto.CardPatchRequest;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.service.CardService;
 import jakarta.validation.Valid;
@@ -13,7 +15,6 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.hateoas.PagedModel;
 import java.math.BigDecimal;
@@ -107,5 +108,22 @@ public class CardController {
         EntityModel<CardResponse> entityModel = EntityModel.of(cardResponse);
         entityModel.add(linkTo(methodOn(CardController.class).getCardById(cardResponse.getId())).withSelfRel());
         return new ResponseEntity(entityModel, HttpStatus.CREATED);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<CardResponse>> updateCard(@Valid @RequestBody CardPutRequest card,
+                                                                @PathVariable Integer id) {
+        CardResponse cardResponse = cardService.updateCard(card, id);
+        EntityModel<CardResponse> entityModel = EntityModel.of(cardResponse);
+        entityModel.add(linkTo(methodOn(CardController.class).getCardById(cardResponse.getId())).withSelfRel());
+        return new ResponseEntity(entityModel, HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CardResponse> updateCard(@PathVariable Integer id) {
+        cardService.deleteCard(id);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

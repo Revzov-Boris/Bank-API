@@ -34,5 +34,7 @@ public class CardRequest {
         @NotNull(message = "Баланс не может быть пустым")
         @DecimalMin(value = "0.00", message = "Баланс не может быть отрицательным")
         @DecimalMax(value = "9999999999.99", message = "Баланс не может превышать максимальное значение")
+        @Digits(integer = 10, fraction = 2,
+                message = "Баланс должен состоять не более чем из 10 целых цифр и 2-х знаков после запятой")
         BigDecimal balance;
 }

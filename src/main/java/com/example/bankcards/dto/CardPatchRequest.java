@@ -5,10 +5,9 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
 // Для Patch запросов
 // Можно изменить все значения, кроме номера карты
-public record PatchBookRequest(
+public record CardPatchRequest(
         Integer userId,
         @Size(min = 2, max = 50, message = "Название банка должно быть от 2 до 50 символов включительно")
         String bankTitle,

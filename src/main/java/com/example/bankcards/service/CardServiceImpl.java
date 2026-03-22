@@ -1,5 +1,6 @@
 package com.example.bankcards.service;
 
+import com.example.bankcards.dto.CardPutRequest;
 import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.entity.CardEntity;
@@ -100,6 +101,35 @@ public class CardServiceImpl implements CardService {
         return toResponse(createdCard);
     }
 
+
+    @Override
+    @Transactional
+    public CardResponse updateCard(CardPutRequest card, int id) {
+        CardEntity cardEntity = cardRepository.findById(id).orElseThrow(
+                () -> new CardNotFoundException(id)
+        );
+        UserEntity userEntity = userRepository.findById(card.getUserId()).orElseThrow(
+                () -> new UserNotFoundException(card.getUserId())
+        );
+        cardEntity.setUser(userEntity);
+        cardEntity.setBankTitle(card.getBankTitle());
+        cardEntity.setType(card.getType());
+        cardEntity.setStatus(card.getStatus());
+        cardEntity.setBalance(card.getBalance());
+        cardEntity.setExpiryDate(card.getExpiryDate());
+        CardEntity updatedCard = cardRepository.save(cardEntity);
+        return toResponse(updatedCard);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteCard(int id) {
+        CardEntity cardEntity = cardRepository.findById(id).orElseThrow(
+                () -> new CardNotFoundException(id)
+        );
+        cardRepository.delete(cardEntity);
+    }
 
     public CardResponse toResponse(CardEntity e) {
         return CardResponse.builder()
