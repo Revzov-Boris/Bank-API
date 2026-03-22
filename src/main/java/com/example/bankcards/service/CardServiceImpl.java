@@ -81,6 +81,16 @@ public class CardServiceImpl implements CardService {
 
 
     @Override
+    public Page<CardResponse> findAllWithFilters(Pageable pageable,
+                                                 Integer userId,
+                                                 CardStatus status,
+                                                 BigDecimal minBalance,
+                                                 BigDecimal maxBalance) {
+        return cardRepository.findAllWithFilters(status, minBalance, maxBalance, userId, pageable)
+                .map(e -> toResponse(e));
+    }
+
+    @Override
     @Transactional
     public CardResponse createCard(CardRequest card) {
         UserEntity userEntity = userRepository.findById(card.getUserId()).orElseThrow(

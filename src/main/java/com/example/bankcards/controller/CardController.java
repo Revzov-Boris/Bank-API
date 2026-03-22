@@ -44,21 +44,11 @@ public class CardController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) CardStatus status,
             @RequestParam(required = false) BigDecimal minBalance,
-            @RequestParam(required = false) BigDecimal maxBalance
+            @RequestParam(required = false) BigDecimal maxBalance,
+            @RequestParam(required = false) Integer userId
             ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CardResponse> pageCards;
-        System.out.println(String.format("status = %s\nminBalance = %s\nmaxBalance = %s", status, minBalance, maxBalance));
-        if (maxBalance != null && minBalance != null && status != null) {
-            pageCards = cardService.findByBalanceRangeAndStatus(pageable, minBalance, maxBalance, status);
-        } else if (maxBalance != null && minBalance != null) {
-            pageCards = cardService.findByBalanceRange(pageable, minBalance, maxBalance);
-        } else if (status != null) {
-            pageCards = cardService.findByStatus(pageable, status);
-        } else {
-            pageCards = cardService.getAllCards(pageable);
-        }
-
+        Page<CardResponse> pageCards = cardService.findAllWithFilters(pageable, userId, status, minBalance, maxBalance);
         PagedModel<EntityModel<CardResponse>> pageModel = PagedModel.of(
             pageCards.stream().map(c -> {
                 EntityModel<CardResponse> entityModel = EntityModel.of(c);
@@ -73,6 +63,25 @@ public class CardController {
 
         // Добавляем HATEOAS ссылки
         // ссылка на себя
+        pageModel.add(Link.of(linkBuild(page, size, status, minBalance, maxBalance, userId)).withSelfRel());
+        if (pageCards.hasNext()) {
+            pageModel.add(Link.of(linkBuild(page + 1, size, status, minBalance, maxBalance, userId))
+                    .withRel("next"));
+        }
+        if (pageCards.hasPrevious()) {
+            pageModel.add(Link.of(linkBuild(page - 1, size, status, minBalance, maxBalance, userId))
+                    .withRel("prev"));
+        }
+        return pageModel;
+    }
+
+
+    private String linkBuild(int page,
+                             int size,
+                             CardStatus status,
+                             BigDecimal minBalance,
+                             BigDecimal maxBalance,
+                             Integer userId) {
         StringBuilder path = new StringBuilder("/cards?page=" + page + "&size=" + size);
         if (status != null) {
             path.append("&status=").append(status);
@@ -83,22 +92,12 @@ public class CardController {
         if (maxBalance != null) {
             path.append("&maxBalance=").append(maxBalance);
         }
-        pageModel.add(Link.of(path.toString()).withSelfRel());
-
-        if (pageCards.hasNext()) {
-            pageModel.add(linkTo(methodOn(CardController.class)
-                    .getAllCard(page + 1, size, status, minBalance, maxBalance))
-                    .withRel("next"));
+        if (userId != null) {
+            path.append("&userId=" + userId);
         }
-
-        if (pageCards.hasPrevious()) {
-            pageModel.add(linkTo(methodOn(CardController.class)
-                    .getAllCard(page - 1, size, status, minBalance, maxBalance))
-                    .withRel("prev"));
-        }
-
-        return pageModel;
+        return path.toString();
     }
+
 
     @PostMapping
     public ResponseEntity<EntityModel<CardResponse>> createCard(@Valid @RequestBody CardRequest card) {

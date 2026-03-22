@@ -14,7 +14,17 @@ import java.math.BigDecimal;
 public interface CardService {
     Page<CardResponse> getAllCards(Pageable pageable);
     CardResponse getCardById(int id);
-    Page<CardResponse> findByBalanceRangeAndStatus(Pageable pageable, BigDecimal minBalance, BigDecimal maxBalance, CardStatus status);
+    Page<CardResponse> findAllWithFilters(Pageable pageable,
+                                          Integer userId,
+                                          CardStatus status,
+                                          BigDecimal minBalance,
+                                          BigDecimal maxBalance);
+
+    Page<CardResponse> findByBalanceRangeAndStatus(Pageable pageable,
+                                                   BigDecimal minBalance,
+                                                   BigDecimal maxBalance,
+                                                   CardStatus status);
+
     Page<CardResponse> findByStatus(Pageable pageable, CardStatus status);
     Page<CardResponse> findByBalanceRange(Pageable pageable, BigDecimal minBalance, BigDecimal maxBalance);
     CardResponse createCard(CardRequest card);

@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<CardEntity, Integer> {
     Page<CardEntity> findAll(Pageable pageable);
     Page<CardEntity> findByStatus(Pageable pageable, CardStatus status);
+    Optional<CardEntity> findByCardNumber(String cardNumber);
 
     @Query("SELECT c FROM CardEntity c WHERE c.balance BETWEEN :minBalance AND :maxBalance AND c.status = :status")
     Page<CardEntity> findByBalanceBetweenAndStatus(
@@ -28,9 +29,18 @@ public interface CardRepository extends JpaRepository<CardEntity, Integer> {
             @Param("maxBalance") BigDecimal maxBalance
     );
 
-    Optional<CardEntity> findByCardNumber(String cardNumber);
-
-
-
+    @Query("""
+           SELECT c
+           FROM CardEntity c
+           WHERE (:status IS NULL OR c.status = :status) AND
+               (:userId IS NULL OR c.user.id = :userId) AND
+               (:minBalance IS NULL OR c.balance >= :minBalance) AND
+               (:maxBalance IS NULL OR c.balance <= :maxBalance)
+           """)
+    Page<CardEntity> findAllWithFilters(@Param("status") CardStatus status,
+                                        @Param("minBalance") BigDecimal minBalance,
+                                        @Param("maxBalance") BigDecimal maxBalance,
+                                        @Param("userId") Integer userId,
+                                        Pageable pageable);
 }
 
