@@ -40,8 +40,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(NonUniqueCardNumberException.class)
-    public ResponseEntity<ErrorResponse> nonUniqueCardNumberException(NonUniqueCardNumberException ex,
+    @ExceptionHandler(UniqueFieldException.class)
+    public ResponseEntity<ErrorResponse> nonUniqueCardNumberException(UniqueFieldException ex,
                                                                       HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .time(LocalDateTime.now())

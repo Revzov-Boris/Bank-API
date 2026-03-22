@@ -1,24 +1,21 @@
 package com.example.bankcards.dto;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDate;
 
-// для создания пользователя
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class UserRequest {
-    @NotBlank(message = "Логин не может быть пустым")
-    @Size(min = 3, max = 50, message = "Логин должен быть от 3 до 50 символов")
-    private String login;
-
-    @NotBlank(message = "Пароль не может быть пустым")
-    @Size(min = 8, max = 50, message = "Пароль должен быть от 8 до 100 символов")
-    private String password;
-
+// Для PUT-запросов, можно поменять всё, кроме логина и пароля
+public class UserPutRequest {
     @NotBlank(message = "Имя не может быть пустым")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
     private String firstName;

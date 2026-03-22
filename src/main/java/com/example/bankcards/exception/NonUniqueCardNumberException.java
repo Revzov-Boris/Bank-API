@@ -1,5 +1,5 @@
 package com.example.bankcards.exception;
 
-public class NonUniqueCardNumberException extends RuntimeException {
+public class NonUniqueCardNumberException extends UniqueFieldException {
     public NonUniqueCardNumberException(String message) {super(message);}
 }
