@@ -97,4 +97,16 @@ public class UserServiceImpl implements UserService{
         userEntity = userRepository.save(userEntity);
         return toResponse(userEntity);
     }
+
+
+    @Override
+    @Transactional
+    public boolean hasUserCard(int userId, int cardId) {
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException(userId)
+        );
+        return userEntity.getCards().stream()
+                .filter(c -> c.getId().equals(cardId))
+                .findFirst().isPresent();
+    }
 }

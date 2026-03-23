@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,5 +22,6 @@ public class BlockingEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private CardEntity card;
     private LocalDateTime dateTime;
-    private Boolean isConfirm;
+    @Enumerated(EnumType.STRING)
+    private BlockingStatus status;
 }
