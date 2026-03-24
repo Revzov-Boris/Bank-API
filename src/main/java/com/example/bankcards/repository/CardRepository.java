@@ -2,9 +2,11 @@ package com.example.bankcards.repository;
 
 import com.example.bankcards.entity.CardEntity;
 import com.example.bankcards.entity.CardStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
@@ -42,5 +44,9 @@ public interface CardRepository extends JpaRepository<CardEntity, Integer> {
                                         @Param("maxBalance") BigDecimal maxBalance,
                                         @Param("userId") Integer userId,
                                         Pageable pageable);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM CardEntity c WHERE c.id = :id")
+    Optional<CardEntity> findByIdForUpdate(@Param("id") Integer id);
 }
 

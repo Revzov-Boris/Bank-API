@@ -4,6 +4,7 @@ import com.example.bankcards.dto.BlockingRequest;
 import com.example.bankcards.dto.BlockingResponse;
 import com.example.bankcards.exception.BlockingException;
 import com.example.bankcards.service.BlockingService;
+import com.example.bankcards.service.CardCheckingService;
 import com.example.bankcards.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
@@ -19,18 +20,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/blockings")
 public class BlockingController {
     private final BlockingService blockingService;
-    private final UserService userService;
+    private final CardCheckingService cardCheckingService;
 
-    public BlockingController(BlockingService blockingService, UserService userService) {
+    public BlockingController(BlockingService blockingService, CardCheckingService cardCheckingService) {
         this.blockingService = blockingService;
-        this.userService = userService;
+        this.cardCheckingService = cardCheckingService;
     }
 
     @PostMapping
     public ResponseEntity<EntityModel<BlockingResponse>> createBlcck(@Valid @RequestBody BlockingRequest blocking) {
         // TODO определить ID вошедшего пользователя
         int userId = 1; // пока захардкожено)
-        if (!userService.hasUserCard(userId, blocking.getCardId())) {
+        if (!cardCheckingService.hasUserCard(userId, blocking.getCardId())) {
             throw new BlockingException("Вы не владелец карты с ID = " + blocking.getCardId());
         }
         BlockingResponse response = blockingService.createBlock(blocking);

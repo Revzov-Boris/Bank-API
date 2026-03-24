@@ -94,4 +94,18 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.badRequest().body(error);
     }
+
+
+    @ExceptionHandler(TransferException.class)
+    public ResponseEntity<ErrorResponse> badStatusForOperation(TransferException ex,
+                                                               HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .time(LocalDateTime.now())
+                .status(400)
+                .error("Cannot perform action")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
 }
