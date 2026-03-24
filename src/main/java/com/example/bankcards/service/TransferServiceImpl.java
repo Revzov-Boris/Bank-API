@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class TransferServiceImpl implements TranserService {
     private final TransfersRepository transfersRepository;
@@ -32,12 +34,13 @@ public class TransferServiceImpl implements TranserService {
         if (transfer.getCardFromId().equals(transfer.getCardToId())) {
             throw new TransferException("Перевод возможен только между двумя разными картами");
         }
-        CardEntity from = cardRepository.findByIdForUpdate(transfer.getCardFromId()).orElseThrow(
-                () -> new CardNotFoundException(transfer.getCardFromId())
-        );
-        CardEntity to = cardRepository.findByIdForUpdate(transfer.getCardToId()).orElseThrow(
-                () -> new CardNotFoundException(transfer.getCardToId())
-        );
+        // блокировка карт
+        List<CardEntity> twoCards = blockCardsForTranfser(transfer.getCardFromId(), transfer.getCardToId());
+        CardEntity from = transfer.getCardFromId().equals(twoCards.getFirst().getId()) ?
+                twoCards.getFirst() : twoCards.getLast();
+        CardEntity to = transfer.getCardToId().equals(twoCards.getFirst().getId()) ?
+                twoCards.getFirst() : twoCards.getLast();
+        // проверка
         cardCheckingService.isCardsValidForTransers(from, to, transfer.getMoney(), userId);
         // если всё нормально, производим перевод
         from.setBalance(from.getBalance().subtract(transfer.getMoney()));
@@ -49,6 +52,19 @@ public class TransferServiceImpl implements TranserService {
                 .build();
         transferEntity = transfersRepository.save(transferEntity);
         return toResponse(transferEntity);
+    }
+
+    // блокирует карты в порядке возрастания id, для исключения взаимной блокирвки
+    private List<CardEntity> blockCardsForTranfser(Integer cardId1, Integer cardId2) {
+        Integer firstId = Math.min(cardId1, cardId2);
+        Integer secondId = Math.max(cardId1, cardId2);
+        CardEntity first = cardRepository.findByIdForUpdate(firstId).orElseThrow(
+                () -> new CardNotFoundException(firstId)
+        );
+        CardEntity second = cardRepository.findByIdForUpdate(secondId).orElseThrow(
+                () -> new CardNotFoundException(secondId)
+        );
+        return List.of(first, second);
     }
 
 

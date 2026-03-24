@@ -20,21 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/blockings")
 public class BlockingController {
     private final BlockingService blockingService;
-    private final CardCheckingService cardCheckingService;
 
-    public BlockingController(BlockingService blockingService, CardCheckingService cardCheckingService) {
+    public BlockingController(BlockingService blockingService) {
         this.blockingService = blockingService;
-        this.cardCheckingService = cardCheckingService;
     }
 
     @PostMapping
     public ResponseEntity<EntityModel<BlockingResponse>> createBlcck(@Valid @RequestBody BlockingRequest blocking) {
         // TODO определить ID вошедшего пользователя
         int userId = 1; // пока захардкожено)
-        if (!cardCheckingService.hasUserCard(userId, blocking.getCardId())) {
-            throw new BlockingException("Вы не владелец карты с ID = " + blocking.getCardId());
-        }
-        BlockingResponse response = blockingService.createBlock(blocking);
+        BlockingResponse response = blockingService.createBlock(blocking, userId);
         return ResponseEntity.status(200).body(EntityModel.of(response));
     }
 }

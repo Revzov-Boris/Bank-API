@@ -20,24 +20,30 @@ import java.time.LocalDateTime;
 public class BlockingServiceImpl implements BlockingService {
     private final BlockingRepository blockingRepository;
     private final CardRepository cardRepository;
+    private final CardCheckingService cardCheckingService;
 
-    public BlockingServiceImpl(BlockingRepository blockingRepository, CardRepository cardRepository) {
+    public BlockingServiceImpl(BlockingRepository blockingRepository, CardRepository cardRepository, CardCheckingService cardCheckingService) {
         this.blockingRepository = blockingRepository;
         this.cardRepository = cardRepository;
+        this.cardCheckingService = cardCheckingService;
     }
 
 
     @Override
     @Transactional
-    public BlockingResponse createBlock(@Valid @RequestBody BlockingRequest blocking) {
-        CardEntity cardEntity = cardRepository.findById(blocking.getCardId()).orElseThrow(
+    public BlockingResponse createBlock(@Valid @RequestBody BlockingRequest blocking, int userId) {
+        // блокируем карту
+        CardEntity cardEntity = cardRepository.findByIdForUpdate(blocking.getCardId()).orElseThrow(
                 () -> new CardNotFoundException(blocking.getCardId())
         );
+        if (!cardCheckingService.hasUserCard(userId, blocking.getCardId())) {
+            throw new BlockingException("Вы не владелец карты с ID = " + blocking.getCardId());
+        }
+        if (!cardEntity.getStatus().equals(CardStatus.ACTIVE)) {
+            throw new BlockingException("Карта с ID = " + blocking.getCardId() + " не активна, нельзя создать запрос на блокировку");
+        }
         if (hasPendingBlocking(blocking.getCardId())) {
             throw new BlockingException("У карты с ID = " + blocking.getCardId() + " уже есть блокировка со статусом PENDING");
-        }
-        if (cardEntity.getStatus().equals(CardStatus.EXPIRED)) {
-            throw new BlockingException("Карта с ID = " + blocking.getCardId() + " просрочена, нельзя создавать для неё запросы на блокировку");
         }
         BlockingEntity blockingEntity = BlockingEntity.builder()
                 .card(cardEntity)
@@ -49,7 +55,6 @@ public class BlockingServiceImpl implements BlockingService {
     }
 
     @Override
-    @Transactional
     public boolean hasPendingBlocking(int cardId) {
         return blockingRepository.findCountByCardAndStatus(cardId, BlockingStatus.PENDING) > 0;
     }
