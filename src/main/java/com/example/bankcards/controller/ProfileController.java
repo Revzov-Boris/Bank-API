@@ -3,8 +3,10 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.UserResponse;
 import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,11 +15,15 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
+import java.util.Enumeration;
+
+import static java.rmi.server.LogStream.log;
 
 
 @RestController
@@ -33,9 +39,17 @@ public class ProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<EntityModel<UserResponse>> getMyPage() {
-        //TODO определять id вошедшего пользователя
-        int userId = 5;
+    public ResponseEntity<EntityModel<UserResponse>> getMyPage(HttpServletRequest request, Authentication auth) {
+        System.out.println("Зашёл: " + auth.getName());
+        Integer userId = userService.getIdByLogin(auth.getName());
+        if (userId == null) {
+            throw new UserNotFoundException("Пользователь с логином " + auth.getName() + " не найден");
+        }
+        Enumeration<String> headers = request.getHeaderNames();
+        while (headers.hasMoreElements()) {
+            String headerName = headers.nextElement();
+            System.out.println("заголовок: " + headerName + " = " + request.getHeader(headerName));
+        }
         return ResponseEntity.status(200)
                 .body(EntityModel.of(userService.getUserById(userId)));
     }
@@ -43,15 +57,17 @@ public class ProfileController {
 
     @GetMapping("/myCards")
     public PagedModel<EntityModel<CardResponse>> getMyCards(
+            Authentication auth,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) CardStatus status,
             @RequestParam(required = false) BigDecimal minBalance,
             @RequestParam(required = false) BigDecimal maxBalance
     ) {
-        //TODO определять id вошедшего пользователя
-        int userId = 5;
-
+        Integer userId = userService.getIdByLogin(auth.getName());
+        if (userId == null) {
+            throw new UserNotFoundException("Пользователь с логином " + auth.getName() + " не найден");
+        }
         Pageable pageable = PageRequest.of(page, size);
         Page<CardResponse> pageCards = cardService.findAllWithFilters(pageable, userId, status, minBalance, maxBalance);
         PagedModel<EntityModel<CardResponse>> pageModel = PagedModel.of(
