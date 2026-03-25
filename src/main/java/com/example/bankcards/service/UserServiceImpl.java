@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Optional;
+
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -96,5 +98,11 @@ public class UserServiceImpl implements UserService{
         userEntity.setBirthDate(user.getBirthDate());
         userEntity = userRepository.save(userEntity);
         return toResponse(userEntity);
+    }
+
+
+    @Override
+    public Integer getIdByLogin(String login) {
+        return userRepository.findIdByLogin(login);
     }
 }
