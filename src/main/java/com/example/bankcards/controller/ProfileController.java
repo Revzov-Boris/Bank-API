@@ -6,6 +6,9 @@ import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,9 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.Enumeration;
 
-import static java.rmi.server.LogStream.log;
-
-
+@Tag(name = "Profile", description = "Просмотр личной информации")
 @RestController
 @RequestMapping("/profile")
 public class ProfileController {
@@ -38,6 +39,9 @@ public class ProfileController {
         this.cardService = cardService;
     }
 
+    @Operation(summary = "Получить свои данные")
+    @ApiResponse(responseCode = "200", description = "Информация о пользователе")
+    @ApiResponse(responseCode = "400", description = "Пользователь не найден")
     @GetMapping
     public ResponseEntity<EntityModel<UserResponse>> getMyPage(HttpServletRequest request, Authentication auth) {
         System.out.println("Зашёл: " + auth.getName());
@@ -54,7 +58,9 @@ public class ProfileController {
                 .body(EntityModel.of(userService.getUserById(userId)));
     }
 
-
+    @Operation(summary = "Получить свои карты")
+    @ApiResponse(responseCode = "200", description = "Информация о картах")
+    @ApiResponse(responseCode = "400", description = "Карты не найдены")
     @GetMapping("/myCards")
     public PagedModel<EntityModel<CardResponse>> getMyCards(
             Authentication auth,

@@ -5,6 +5,9 @@ import com.example.bankcards.dto.TransfersRequest;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.service.TranserService;
 import com.example.bankcards.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Transfers", description = "Управление переводами")
 @RestController
 @RequestMapping("/transfers")
 public class TransfersController {
@@ -28,6 +32,9 @@ public class TransfersController {
     }
 
 
+    @Operation(summary = "Сделать перевод между своими картами")
+    @ApiResponse(responseCode = "200", description = "Перевод совершён")
+    @ApiResponse(responseCode = "400", description = "Ошибка перевода")
     @PostMapping
     public ResponseEntity<EntityModel<TransferResponse>> createTransfer(@Valid @RequestBody TransfersRequest transfer,
                                                                         Authentication auth) {

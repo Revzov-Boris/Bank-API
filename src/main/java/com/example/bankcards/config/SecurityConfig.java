@@ -36,6 +36,15 @@ public class SecurityConfig {
                     // авторизация для всех
                     .requestMatchers("/auth/*")
                     .permitAll()
+                    // Swagger UI и OpenAPI документация
+                    .requestMatchers(
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/api-docs/**",
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html"
+                    ).permitAll()
                     // профиль только для пользователя
                     .requestMatchers("/profile/**")
                     .hasRole(Role.USER.name())

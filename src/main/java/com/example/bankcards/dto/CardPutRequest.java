@@ -1,6 +1,7 @@
 package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.CardStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -13,18 +14,29 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class CardPutRequest {
+    @Schema(description = "ID владельца", example = "1")
     @NotNull(message = "ID пользователя не может быть пустым")
     Integer userId;
+
+    @Schema(description = "Название банка", example = "Мой банк")
     @NotBlank(message = "Название банка не может быть пустым")
     @Size(min = 2, max = 50, message = "Название банка должно быть от 2 до 50 символов включительно")
     String bankTitle;
+
+    @Schema(description = "Тип карты", example = "дебетовая")
     @NotBlank(message = "Тип карты не может быть пустым")
     @Size(min = 2, max = 50, message = "Тип карты должен быть от 2 до 50 символов включительно")
     String type;
+
+    @Schema(description = "Срок действия", example = "2030-10-01")
     @NotNull(message = "Срок действия не может быть пустым")
     LocalDate expiryDate;
+
+    @Schema(description = "Статус", example = "ACTIVE")
     @NotNull(message = "Статус карты не может быть пустым")
     CardStatus status;
+
+    @Schema(description = "Баланс", example = "240.80")
     @NotNull(message = "Баланс не может быть пустым")
     @DecimalMin(value = "0.00", message = "Баланс не может быть отрицательным")
     @DecimalMax(value = "9999999999.99", message = "Баланс не может превышать максимальное значение")
