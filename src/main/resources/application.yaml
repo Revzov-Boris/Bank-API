@@ -1,6 +1,11 @@
 spring:
   application:
     name: bankcards
+  config:
+    activate:
+      on-profile: dev
+  profiles:
+    active: dev
 
   liquibase:
     enabled: true
@@ -9,7 +14,7 @@ spring:
 
   # Настройки БД
   datasource:
-    url: jdbc:postgresql://localhost:5433/Bank
+    url: jdbc:postgresql://localhost:5430/bankcards
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
