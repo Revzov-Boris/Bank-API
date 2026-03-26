@@ -2,9 +2,12 @@ spring:
   application:
     name: bankcards
 
-  # ===================================================================
-  # НАСТРОЙКИ БАЗЫ ДАННЫХ
-  # ===================================================================
+  liquibase:
+    enabled: true
+    change-log: classpath:db/migration/db-changelog-master.yaml
+    drop-first: false  # Не удалять данные при старте
+
+  # Настройки БД
   datasource:
     url: jdbc:postgresql://localhost:5433/Bank
     username: postgres
@@ -25,7 +28,7 @@ spring:
 
     # Стратегии именования
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
 
@@ -58,8 +61,13 @@ jwt:
   expiration: 86400000  # 24 часа
   header: Authorization
   prefix: Bearer
-# ===================================================================
+
 # ОСНОВНЫЕ НАСТРОЙКИ ПРИЛОЖЕНИЯ
-# ===================================================================
 server:
   port: 8080
+
+
+logging:
+  level:
+    liquibase: INFO
+    org.springframework.boot: INFO

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: scripts/create-tables.sql
+
+  - include:
+      relativeToChangelogFile: true
+      file: scripts/test-data-load.sql
