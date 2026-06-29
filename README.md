@@ -19,13 +19,19 @@
   Bearer eyJhbGci... ...oxNzc
 
 Данные для авторизации как администратор:<br>
-login: admin<br>
-password: superadmin<br>
-
+```
+{
+    "login": admin
+    "password": superadmin
+}
+```
 Данные для авторизации как пользователь:<br>
 (для пользователя с ID=1)<br>
-login: sdfoijvova<br>
-password: 78щшлщщ89789<br>
-
+```
+{
+  "login": sdfoijvova
+  "password": 78щшлщщ89789
+}
+```
 
 Документация доступна по адресу http://localhost:8080/swagger-ui/index.html при запущенном приложении
